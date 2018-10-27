@@ -27,17 +27,25 @@ def loadArgoLocationsByMonth(years, months):
 locations = loadArgoLocationsByMonth([2017],[9,10])
 argoLats = []
 argoLons = []
-
+argoTimes = []
 for loc in locations:
     print(loc.id)
     if int(loc.id) in floatsToSearch:
         argoLats.append(loc.lat)
         argoLons.append(loc.lon)
+        argoTimes.append(loc.jul)
+
 hurricaneLats = []
 hurricaneLons = []
+hurricaneTimes = []
 hurricane_json = loadJson("hurricaneWithYear.json")
+
 for hurricane_location in hurricane_json["MARIA"]["locations"]:
     hurricaneLats.append(hurricane_location["location"][0])
     hurricaneLons.append(hurricane_location["location"][1])
-plt.plot(argoLons,argoLats,'ro',hurricaneLons,hurricaneLats,'b--')
+    hurricaneTimes.append(hurricane_location["time"])
+    
+plt.scatter(argoLons,argoLats,c=argoTimes)
+plt.scatter(hurricaneLons,hurricaneLats,c=hurricaneTimes)
+plt.plot(hurricaneLons,hurricaneLats)
 plt.show()
