@@ -39,6 +39,7 @@ def writeDictToJson(s,filename):
         f.write(str(s))
 
 def stripSpace(s):
+    ##remove spaces
     return s.strip(" ")
 
 def generateFile():
@@ -59,11 +60,13 @@ def generateFile():
     writeDictToJson(hurricanes,"output.json")
 
 def loadJson(filename):
+    ## load json file into dictionary
     return json.loads(
         open(filename).read()
     )
 
 def addMonthYearInformation(filename):
+    #Retroactively add year, month data to hurricanes for easier searching
     hurricane_data = loadJson(filename)
     for hurricaneName in hurricane_data.keys():
         year = set()

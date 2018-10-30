@@ -34,6 +34,7 @@ def loadJson(filename):
 #Open CSV file 
 
 def loadArgoLocationsFromFile(filename):
+    #load argo locations by file name
     locations = []
     with open(filename) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
@@ -48,6 +49,7 @@ def loadArgoLocationsFromFile(filename):
     return locations
 
 def loadArgoLocationsByMonth(years, months):
+    ##load multiple argo locations by months and years into dictionary
     year = years[0]
     locations=[]
     for month in months:
@@ -64,6 +66,8 @@ def loadArgoLocationsByMonth(years, months):
 
 
 def searchHurricanesWithArgo():
+    ##Load a list of hurricanes and search each hurricane 
+    ## for argo floats within a certain distance and time
     hurricane_json = loadJson("hurricaneWithYear.json")
     output = {}
     for hurricane in hurricane_json.keys():
