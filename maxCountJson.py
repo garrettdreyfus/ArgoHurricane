@@ -11,11 +11,11 @@ def writeDictToJson(s,filename):
         f.write(str(s))
 
 
-output = loadJson("pureoutput.json")
+output = loadJson("outputs/pureoutput.json")
 maxcount = 0
 for k in output.keys():
-    if output[k]["count"] > maxcount:
-       maxcount = output[k]["count"]
+    if len(output[k]["ids"]) > maxcount:
+       maxcount = len(output[k]["ids"])
        print(k)
 print(maxcount)
     

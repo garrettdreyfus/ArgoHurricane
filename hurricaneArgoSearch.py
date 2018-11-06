@@ -1,9 +1,11 @@
 import json
 import julian
+from Location import Loc
 from datetime import datetime
 from dateutil import parser
 from geopy.distance import vincenty
-from indexFileDownloader import downloadYearMonth
+from fileDownloader import downloadIndex, loadArgoLocationsFromFile
+
 import csv
 
 def withinTolerance(latlon1,t1,latlon2,t2,distTol,tTol):
@@ -13,16 +15,6 @@ def withinTolerance(latlon1,t1,latlon2,t2,distTol,tTol):
         return False
 
 #Location Class Definition
-
-class Loc:
-    #lat lon time object
-    def __init__(self,jul,lat,lon,eyed):
-        self.jul = jul
-        self.lat = lat
-        self.lon = lon
-        self.id = eyed
-
-
 #Open Pre-Processed Hurricane JSON
 hurrDat = "hurricanes.json"
 def loadJson(filename):
@@ -33,20 +25,6 @@ def loadJson(filename):
 
 #Open CSV file 
 
-def loadArgoLocationsFromFile(filename):
-    #load argo locations by file name
-    locations = []
-    with open(filename) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        for row in csv_reader:
-            if row[3][0:4] != "date":
-                d = row[3]
-                d = datetime(int(d[0:4]),int(d[5:7]),
-                        int(d[8:10]),int(d[11:13])
-                        ,int(d[14:16]))
-                t = julian.to_jd(d)
-                locations.append(Loc(t,float(row[5]),float(row[7]),row[0]))
-    return locations
 
 def loadArgoLocationsByMonth(years, months):
     ##load multiple argo locations by months and years into dictionary

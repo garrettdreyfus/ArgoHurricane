@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 from hurricaneArgoSearch import loadArgoLocationsFromFile, loadJson
-from indexFileDownloader import downloadYearMonth
+from indexFileDownloader import downloadIndex
 
 floatsToSearch = [6901182, 6901150, 4901815, 4902099, 6902713, 4901623, 4902115, 4901289, 4902912, 4902347, 6902632, 5903109, 4902114, 3901625, 4901827, 6901183, 3901219, 6902633, 4901195, 4901628, 4901763, 6901448, 4901279, 6902564, 4901630, 6901172, 4902112, 4901814, 4901483, 4901704, 4902911, 6901508, 6901598, 4902120, 4901798]
-
+print(len(floatsToSearch))
 
 # Load multiple argo location files into one dictionary
 def loadArgoLocationsByMonth(years, months):
@@ -15,7 +15,6 @@ def loadArgoLocationsByMonth(years, months):
         else:
             month = str(month)
         year=str(year)
-        print((year),month)
         downloadYearMonth((year),month)
         locations+=loadArgoLocationsFromFile("indexs/" + (year)+ month+".csv")
     return locations
@@ -27,7 +26,6 @@ for floatId in floatsToSearch:
     argoLons = []
     argoTimes = []
     for loc in locations:
-        print(loc.id)
         if int(loc.id) == floatId:
             argoLats.append(loc.lat)
             argoLons.append(loc.lon)
@@ -38,7 +36,6 @@ argoLats = []
 argoLons = []
 argoTimes = []
 for loc in locations:
-    print(loc.id)
     if int(loc.id) in floatsToSearch:
         argoLats.append(loc.lat)
         argoLons.append(loc.lon)
