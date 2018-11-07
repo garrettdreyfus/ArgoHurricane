@@ -63,8 +63,41 @@ def loadArgoRunsFromFile(partialUrl):
             densitiesOut.append(float(gsw.density.rho(psal,temp,pres)))
     return pressuresOut, densitiesOut
             
-    
+def loadArgoLocationsByMonth(years, months):
+    locations=[]
+    for year in years:
+        for month in months:
+            if month<10:
+                month = "0" + str(month)
+            else:
+                month = str(month)
+            year=str(year)
+            downloadIndex((year),month)
+            locations+=loadArgoLocationsFromFile("indexs/" + (year)+ month+".csv")
+    return locations
 
+def loadArgoLocationsByMonth(yearsmonths):
+    locations=[]
+    for year in yearsmonths.keys():
+        for month in yearsmonths[year]:
+            if month<10:
+                month = "0" + str(month)
+            else:
+                month = str(month)
+            year=str(year)
+            downloadIndex((year),month)
+            locations+=loadArgoLocationsFromFile("indexs/" + (year)+ month+".csv")
+    return locations
+
+def loadArgoLocationsByJulian(hurrJson,offset=0):
+    yearsmonths={}
+    for loc in hurrJson["locations"]:
+        dt = julian.from_jd(loc["time"]+offset)
+        if dt.year not in yearsmonths:
+            yearsmonths[dt.year] = set()
+        yearsmonths[dt.year].add(dt.month)
+    print(yearsmonths)
+    return loadArgoLocationsByMonth(yearsmonths)
 
 
 
