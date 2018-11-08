@@ -16,6 +16,7 @@ def downloadIndex(year,month):
             urllib.request.urlretrieve(url, "indexs/"+(year)+(month)+".csv")
         except urllib.error.HTTPError:
             print("couldn't find: ",url) 
+            return -1
 
 
 def loadArgoLocationsFromFile(filename):
@@ -43,11 +44,13 @@ def downloadRun(partialUrl):
             urllib.request.urlretrieve(url, "runs/"+runId+".nc")
         except urllib.error.HTTPError:
             print("couldn't find: ",url) 
+            return -1
 
 def loadArgoRunsFromFile(partialUrl):
     pressuresOut = []
     densitiesOut = []
-    downloadRun(partialUrl)
+    if downloadRun(partialUrl) == -1:
+        return [],[]
     runId = runIdFromPartial(partialUrl)
     dataset = Dataset("runs/"+runId+".nc")
     pressures = dataset.variables["pres_adjusted"][:][0]
