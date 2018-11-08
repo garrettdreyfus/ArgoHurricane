@@ -63,7 +63,7 @@ def loadArgoRunsFromFile(partialUrl):
             temp = temps[index]
             temp = gsw.conversions.CT_from_t(psal,temp,pres)
             pressuresOut.append(float(pres))
-            densitiesOut.append(float(gsw.density.rho(psal,temp,pres,1000)))
+            densitiesOut.append(float(gsw.density.rho(psal,temp,pres)))
     return pressuresOut, densitiesOut
             
 def loadArgoLocationsByMonth(years, months):

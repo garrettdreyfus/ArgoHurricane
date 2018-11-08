@@ -106,7 +106,7 @@ def plotDensityContour(x,y,z,c,subplot,dayswhat,distance,levels=[],tw=0):
 
 
 #def timeofClosestPass(lat,lon,distanceDict,hurrJson):
-hurricaneJson = loadJson("hurricaneWithYear.json")["NICOLE"]
+hurricaneJson = loadJson("hurricaneWithYear.json")["MARIA"]
 timeTraveled = []
 for i in hurricaneJson["locations"]:
     i['time'] = i['time']
