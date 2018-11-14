@@ -39,8 +39,8 @@ def plotLineStringOnMap(l,hurrJson):
     m.plot(lons, lats,linewidth=1.5,color='b')
 
     milestones = getMileStones(hurrJson)
-    #for x in range(len(milestones)):
-        #plt.annotate(str(x*1000) + " km",xy=m(milestones[x][1],milestones[x][0]),arrowprops=dict(facecolor='r', headwidth=0.2))
+    for x in range(len(milestones)):
+        plt.annotate(str(x*1000) + " km",xy=m(milestones[x][1],milestones[x][0]),arrowprops=dict(facecolor='r', headwidth=0.2))
     plt.title('Hurricane Maria Track')
 
 def generateCoordDistanceDict(line):
@@ -90,13 +90,15 @@ def distanceFromTrack(lat,lon,hurrLine,distanceDict):
     coords = findClosestPointInTrackDict(hurrLine.project(Point(lat,lon)),distanceDict)
     return vincenty((lat,lon),coords).km
 
-def plotDensityContour(x,y,z,c,subplot,dayswhat,distance,levels=[],tw=0):
+def plotDensityContour(profiles,c,subplot,dayswhat,distance,mlt,levels=[],tw=0):
     plt.subplot(subplot)
     if len(levels) != 0:
-        p = plt.tricontourf(x,y,z,cmap=c,levels=levels)
+        p = plt.tricontourf(profiles["x"],profiles["y"],profiles["z"],cmap=c,levels=levels)
     else:
-        p = plt.tricontourf(x,y,z,cmap=c)
-    plt.scatter(x,y,marker='|',alpha=0.2)
+        p = plt.tricontourf(profiles["x"],profiles["y"],profiles["z"],cmap=c)
+    plt.scatter(profiles["x"],profiles["y"],marker='|',alpha=0.2)
+    mlt["x"],mlt["y"] = (list(t) for t in zip(*sorted(zip(mlt["x"], mlt["y"]))))
+    plt.plot(mlt["x"],mlt["y"],marker='x',alpha=1,c="r")
     plt.xlabel("Distance Along Track (km)")
     plt.ylabel("Depth in dBar")
     plt.colorbar(p,label="density in kg/m^3")
@@ -107,15 +109,15 @@ def plotDensityContour(x,y,z,c,subplot,dayswhat,distance,levels=[],tw=0):
 def timeOffsetTrack(j,offset):
     for i in j["locations"]:
         i['time'] = i['time']+offset
+    return j
 
 
 
 #def timeofClosestPass(lat,lon,distanceDict,hurrJson):
-hurricaneJson = loadJson("hurricaneWithYear.json")["MARIA"]
-timeOffsetTrack(hurricaneJson,0)
 
 def pullDensityProfiles(jsonFileName,hurricaneName,searchRadius,depth,timewindow):
     hurricaneJson = loadJson(jsonFileName)[hurricaneName]
+    #hurricaneJson = timeOffsetTrack(hurricaneJson,-80)
     hurricaneLine = createHurricaneLine(hurricaneJson)
     coordDict = generateCoordDistanceDict(hurricaneLine)
     locations = loadArgoLocationsByJulian(hurricaneJson)
@@ -124,37 +126,52 @@ def pullDensityProfiles(jsonFileName,hurricaneName,searchRadius,depth,timewindow
     profiles = {"before":{"x":[],"y":[],"z":[]},
                 "during":{"x":[],"y":[],"z":[]},
                 "after":{"x":[],"y":[],"z":[]}}
+    mlt = {"before":{"x":[],"y":[]},
+                "during":{"x":[],"y":[]},
+                "after":{"x":[],"y":[]}}
     trackLength = lengthOfHurricaneInKm(hurricaneJson)
     for floatLoc in locations:
         if distanceFromTrack(floatLoc.lat,floatLoc.lon,hurricaneLine,coordDict)<searchRadius:
+            firstMltReading = True
             p = Point(floatLoc.lat,floatLoc.lon)
             deltaT =floatLoc.jul - findClosestTimeOfPassing(floatLoc.lat,floatLoc.lon,hurricaneJson,hurricaneLine,coordDict)
             timeframe=None
             if abs(deltaT)<timewindow/2.0:
                 timeframe = "during"
-            if deltaT > timewindow/2.0 and deltaT <3*timewindow/2.0:
+            if deltaT >= timewindow/2.0 and deltaT <3*timewindow/2.0:
                 timeframe = "after"
-            if deltaT < -timewindow/2.0 and deltaT>-3*timewindow/2.0:
+            if deltaT <= -timewindow/2.0 and deltaT>-3*timewindow/2.0:
                 timeframe = "before"
             if timeframe:
-                ps, ds = loadArgoRunsFromFile(floatLoc.url)
+                ps, ds,ts = loadArgoRunsFromFile(floatLoc.url)
                 dist = (hurricaneLine.project(p)/hurricaneLine.length)*trackLength
                 for i in range(len(ps)):
                     if ps[i] < depth:
                         profiles[timeframe]["x"].append(dist)
                         profiles[timeframe]["y"].append(-ps[i])
                         profiles[timeframe]["z"].append(ds[i])
-    return profiles
+                    if i>0:
+                        #if abs((ds[i]-ds[i-1])/(ps[i]-ps[i-1])) > 0.0125 and firstMltReading:
+                            #mlt[timeframe]["x"].append(dist)
+                            #mlt[timeframe]["y"].append(-ps[i])
+                            #firstMltReading=False
+                        if ts[0] - ts[i] > 0.5 and firstMltReading:
+                            mlt[timeframe]["x"].append(dist)
+                            mlt[timeframe]["y"].append(-ps[i])
+                            firstMltReading=False
+
+    return profiles, mlt
 plt.figure()
 timewindow = 5
-profiles = pullDensityProfiles("hurricaneWithYear.json","MARIA",200,500,timewindow)
+profiles, mlt = pullDensityProfiles("hurricaneWithYear.json","MARIA",200,100,timewindow)
 hurricaneJson = loadJson("hurricaneWithYear.json")["MARIA"]
+#hurricaneJson = timeOffsetTrack(hurricaneJson,-80)
 hurricaneLine = createHurricaneLine(hurricaneJson)
 trackLength = lengthOfHurricaneInKm(hurricaneJson)
 
-bp = plotDensityContour(profiles["before"]["x"],profiles["before"]["y"],profiles["before"]["z"],"YlGnBu",221,"before",trackLength,tw=timewindow)
-plotDensityContour(profiles["during"]["x"],profiles["during"]["y"],profiles["during"]["z"],"YlGnBu",222,"during",trackLength,tw=timewindow,levels=bp.levels)
-plotDensityContour(profiles["after"]["x"],profiles["after"]["y"],profiles["after"]["z"],"YlGnBu",223,"after",trackLength,tw=timewindow,levels=bp.levels)
+bp = plotDensityContour(profiles["before"],"YlGnBu",221,"before",trackLength,mlt["before"],tw=timewindow)
+plotDensityContour(profiles["during"],"YlGnBu",222,"during",trackLength,mlt["during"],tw=timewindow,levels=bp.levels)
+plotDensityContour(profiles["after"],"YlGnBu",223,"after",trackLength,mlt["after"],tw=timewindow,levels=bp.levels)
 
 plt.subplot(224)
 plotLineStringOnMap(hurricaneLine,hurricaneJson)

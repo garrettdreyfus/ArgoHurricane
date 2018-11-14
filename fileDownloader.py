@@ -49,22 +49,23 @@ def downloadRun(partialUrl):
 def loadArgoRunsFromFile(partialUrl):
     pressuresOut = []
     densitiesOut = []
-    if downloadRun(partialUrl) == -1:
-        return [],[]
-    runId = runIdFromPartial(partialUrl)
-    dataset = Dataset("runs/"+runId+".nc")
-    pressures = dataset.variables["pres_adjusted"][:][0]
-    salts = dataset.variables["psal"][:][0]
-    temps = dataset.variables["temp"][:][0]
-    for index in range(len(pressures)):
-        if pressures[index] != "_":
-            pres = pressures[index]
-            psal = salts[index]
-            temp = temps[index]
-            temp = gsw.conversions.CT_from_t(psal,temp,pres)
-            pressuresOut.append(float(pres))
-            densitiesOut.append(float(gsw.density.rho(psal,temp,pres)))
-    return pressuresOut, densitiesOut
+    tempsOut = []
+    if downloadRun(partialUrl) != -1:
+        runId = runIdFromPartial(partialUrl)
+        dataset = Dataset("runs/"+runId+".nc")
+        pressures = dataset.variables["pres_adjusted"][:][0]
+        salts = dataset.variables["psal"][:][0]
+        temps = dataset.variables["temp"][:][0]
+        for index in range(len(pressures)):
+            if pressures[index] != "_":
+                pres = pressures[index]
+                psal = salts[index]
+                temp = temps[index]
+                temp = gsw.conversions.CT_from_t(psal,temp,pres)
+                tempsOut.append(temp)
+                pressuresOut.append(float(pres))
+                densitiesOut.append(float(gsw.density.rho(psal,temp,pres)))
+    return pressuresOut, densitiesOut, tempsOut
             
 def loadArgoLocationsByMonth(years, months):
     locations=[]
