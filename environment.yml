@@ -6,7 +6,6 @@ dependencies:
   - basemap=1.2.0=py37h50ae964_0
   - geographiclib=1.49=py_0
   - geopy=1.17.0=py_0
-  - blas=1.0=mkl
   - bzip2=1.0.6=h14c3975_5
   - ca-certificates=2018.03.07=0
   - certifi=2018.10.15=py37_0
@@ -40,8 +39,6 @@ dependencies:
   - libxcb=1.13=h1bed415_1
   - libxml2=2.9.8=h26e45fe_1
   - matplotlib=3.0.0=py37h5429711_0
-  - mkl=2019.0=118
-  - mkl_fft=1.0.6=py37h7dd41cf_0
   - mkl_random=1.0.1=py37h4414c95_1
   - ncurses=6.1=hf484d3e_0
   - netcdf4=1.4.1=py37h4b4f87f_0
@@ -51,7 +48,6 @@ dependencies:
   - pandas=0.23.4=py37h04863e7_0
   - patsy=0.5.1=py37_0
   - pcre=8.42=h439df22_0
-  - pip=10.0.1=py37_0
   - proj4=5.0.1=h14c3975_0
   - pyparsing=2.2.2=py37_0
   - pyproj=1.9.5.1=py37h7b21b82_1
@@ -76,7 +72,6 @@ dependencies:
   - xz=5.2.4=h14c3975_4
   - zlib=1.2.11=ha838bed_2
   - pip:
-    - gsw==3.2.1
     - julian==0.14
     - seawater==3.3.4
 prefix: /home/gdreyfus/.conda/envs/argo
